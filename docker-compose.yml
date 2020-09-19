@@ -9,6 +9,8 @@ services:
     ports:
         - "80:80"
         - "443:443"
+    depends_on: 
+        - currency-db
   currency-db:
     container_name: currency-db
     image: mcr.microsoft.com/mssql/server:2019-latest
