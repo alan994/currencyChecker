@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.0.0" />
+    <PackageReference Include="MediatR" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CurrencyChecker.Data\CurrencyChecker.Data.csproj" />
+    <ProjectReference Include="..\External\CurrencyChecker.External.Api.Abstractions\CurrencyChecker.External.Api.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
