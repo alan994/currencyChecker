@@ -45,11 +45,12 @@ namespace CurrencyChecker.Web
 			services.AddSwaggerGen();
 		}
 				
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CurrencyContext db)
 		{
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				db.Database.Migrate();
 			}
 
 			app.UseHttpsRedirection();

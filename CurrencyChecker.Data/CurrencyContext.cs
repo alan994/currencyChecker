@@ -20,6 +20,8 @@ namespace CurrencyChecker.Data
 
 			modelBuilder.Entity<Currency>().HasKey(x => x.Id);
 			modelBuilder.Entity<Currency>().Property(x => x.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Currency>().Property(x => x.LastChanged).HasColumnType("Date");
+
 		}
 
 		public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

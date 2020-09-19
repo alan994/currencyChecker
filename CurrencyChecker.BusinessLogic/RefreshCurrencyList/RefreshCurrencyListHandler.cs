@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,9 +34,9 @@ namespace CurrencyChecker.BusinessLogic.RefreshCurrencyList
 			var response = new RefreshCurrencyListResponse();
 
 			List<CurrencyModel> apiResponse = null;
-			//Try to fetch data from API
 			try
 			{
+				//Try to fetch data from API
 				apiResponse = await this.currencyApi.GetCurrencyListAsync();
 			}
 			catch(ApiUnavailable ex)
@@ -56,12 +55,40 @@ namespace CurrencyChecker.BusinessLogic.RefreshCurrencyList
 			}
 
 
-			var currencies = this.mapper.Map<List<Currency>>(apiResponse);
+			var newCurrencies = this.mapper.Map<List<Currency>>(apiResponse);
+			var oldCurrencies = await this.GetCurrenciesFromDatabaseAsync();
 
-			this.db.Currencies.AddRange(currencies);
+			var oldcurrenciesForDelete = new List<Currency>();
+
+			foreach(var oldCurrency in oldCurrencies)
+			{
+				var targetNewCurrency = newCurrencies.FirstOrDefault(x => x.Code == oldCurrency.Code);
+				if(targetNewCurrency is null)
+				{
+					oldcurrenciesForDelete.Add(oldCurrency);
+					continue;
+				}
+
+				this.mapper.Map(targetNewCurrency, oldCurrency);				
+			}
+
+			//Check if there is something to delete
+			if (oldcurrenciesForDelete.Any())
+			{
+				this.db.Currencies.RemoveRange(oldcurrenciesForDelete);
+			}
+
+			//Check if there is something to add
+			var toAdd = newCurrencies.Select(x => x.Code).Except(oldCurrencies.Select(x => x.Code).ToList()).ToList();
+			if (toAdd.Any())
+			{
+				this.db.Currencies.AddRange(newCurrencies.Where(x => toAdd.Contains(x.Code)).ToList());
+			}
+									
 			await this.db.SaveChangesAsync();
 
-			response.Currencies = currencies;
+			//TODO: Candiate for optimization
+			response.Currencies = await this.GetCurrenciesFromDatabaseAsync();
 
 			return response;
 		}
